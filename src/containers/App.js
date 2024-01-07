@@ -1,49 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import Scroll from "../components/Scroll";
 // import { robots } from "./robots";
 import "./App.css";
 
-class App extends React.Component {
-  constructor() {
-    // We have to call super() - the Component constructor because App extends it.
-    super();
-    // State is something that can change, and affect our app.
-    this.state = {
-      robots: [],
-      searchField: "",
-    };
-  }
+export default function App() {
+  const [robots, setRobots] = useState([]);
+  const [userInput, setUserInput] = useState("");
+  const [count, setCount] = useState(0);
 
-  componentDidMount() {
+  useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
-      .then((users) => this.setState({ robots: users }));
-  }
+      .then((users) => setRobots(users));
+  }, [count]); // Only run if count changes
 
-  onSearchChange = (event) => {
-    this.setState({ searchField: event.target.value });
+  const onSearchChange = (e) => {
+    setUserInput(e.target.value);
   };
 
-  render() {
-    const { robots, searchField } = this.state;
-    const filteredRobots = robots.filter((robot) => {
-      return robot.name.toLowerCase().includes(searchField.toLowerCase());
-    });
-
-    return !robots.length ? (
-      <h1 className="tc f1">Loading</h1>
-    ) : (
-      <div className="tc">
-        <h1 className="f1">RoboFriends</h1>
-        <SearchBox searchChange={this.onSearchChange} />
-        <Scroll>
-          <CardList robots={filteredRobots} />
-        </Scroll>
-      </div>
-    );
-  }
+  const filteredRobots = robots.filter((robot) => {
+    return robot.name.toLowerCase().includes(userInput.toLowerCase());
+  });
+  return !robots.length ? (
+    <h1 className="tc f1">Loading</h1>
+  ) : (
+    <div className="tc">
+      <h1 className="f1">RoboFriends</h1>
+      <button onClick={() => setCount(count + 1)}>Click Me</button>
+      <SearchBox searchChange={onSearchChange} />
+      <Scroll>
+        <CardList robots={filteredRobots} />
+      </Scroll>
+    </div>
+  );
 }
-
-export default App;
